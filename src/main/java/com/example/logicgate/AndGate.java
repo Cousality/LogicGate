@@ -27,7 +27,7 @@ public class AndGate {
     }
 
     private Group createGate(double xPosition, double screenHeight, double screenWidth) {
-        // Create the D-shape for the AND gate
+        // Create the andGate arc
         Arc andGateArc = new Arc(xPosition - (gateWidth / 1.55), screenHeight / 5, gateWidth / 3, gateHeight / 3, 270, 180);
         andGateArc.setFill(Color.TRANSPARENT);
         andGateArc.setStroke(Color.WHITE);
@@ -46,18 +46,21 @@ public class AndGate {
         bottomLine.setStroke(Color.WHITE);
         bottomLine.setStrokeWidth(3);
 
-        // Input and output lines
+        // Input and Output lines
         Line inputLine1 = new Line(xPosition - gateWidth - (gateWidth / 4), screenHeight / 5 - gateHeight / 5, xPosition - gateWidth, screenHeight / 5 - gateHeight / 5);
         inputLine1.setStroke(Color.WHITE);
         inputLine1.setStrokeWidth(3);
+        inputLine1.setUserData("input1");
 
         Line inputLine2 = new Line(xPosition - gateWidth - (gateWidth / 4), screenHeight / 5 + gateHeight / 5, xPosition - gateWidth, screenHeight / 5 + gateHeight / 5);
         inputLine2.setStroke(Color.WHITE);
         inputLine2.setStrokeWidth(3);
+        inputLine2.setUserData("input2");
 
         Line outputLine = new Line(xPosition - (gateWidth / 1.80) + (gateWidth / 4), screenHeight / 5, xPosition - (gateWidth / 2) + (gateWidth / 2.5), screenHeight / 5);
         outputLine.setStroke(Color.WHITE);
         outputLine.setStrokeWidth(3);
+        outputLine.setUserData("output");
 
         // Hit box
         Rectangle hitBox = new Rectangle(xPosition - gateWidth, screenHeight / 5 - gateHeight / 3, gateWidth / 1.5, gateHeight / 1.5);
@@ -66,7 +69,7 @@ public class AndGate {
         hitBox.setStrokeWidth(3);
 
         // Group the gate elements
-        Group andGateGroup = new Group(andGateArc, backLine, topLine, bottomLine, inputLine1, inputLine2, outputLine, hitBox);
+        Group andGateGroup = new Group(andGateArc, backLine, topLine, inputLine1, inputLine2,bottomLine, outputLine, hitBox);
 
         // Add event handlers for interaction
         addEventHandlers(andGateGroup, xPosition, screenHeight, screenWidth);
