@@ -11,6 +11,9 @@ import javafx.scene.shape.Line;
 import javafx.stage.Screen;
 import javafx.stage.Stage;
 
+import java.util.Arrays;
+
+
 public class LogicGateApplication extends Application {
 
     public static void main(String[] args) {
@@ -89,23 +92,25 @@ public class LogicGateApplication extends Application {
 
         node.setOnMouseDragged(event -> {
             // Set the start and end points of the connection line
-            connectionLine.setStartX(node.getCenterX());
-            connectionLine.setStartY(node.getCenterY());
-            connectionLine.setEndX(event.getSceneX());
-            connectionLine.setEndY(event.getSceneY());
+            if (event.getButton().equals(MouseButton.PRIMARY)) {
+                connectionLine.setStartX(node.getCenterX());
+                connectionLine.setStartY(node.getCenterY());
+                connectionLine.setEndX(event.getSceneX());
+                connectionLine.setEndY(event.getSceneY());
 
-            // Add the connection line to the scene if it's not already present
-            if (!sceneRoot.getChildren().contains(connectionLine)) {
-                sceneRoot.getChildren().add(connectionLine);
+                // Add the connection line to the scene if it's not already present
+                if (!sceneRoot.getChildren().contains(connectionLine)) {
+                    sceneRoot.getChildren().add(connectionLine);
+                }
+                System.out.println(Arrays.toString(snapped));
+                // Check if the connection line is near an input line of a gate and snap
+                snapToGateInput(connectionLine, sceneRoot, snapped, snappedInputLine);
             }
-
-            // Check if the connection line is near an input line of a gate and snap
-            snapToGateInput(connectionLine, sceneRoot, snapped, snappedInputLine);
         });
 
         // Handle mouse release: delete if not snapped
         node.setOnMouseReleased(event -> {
-            if (event.getButton().equals(MouseButton.SECONDARY)) {
+            if (event.getButton().equals(MouseButton.PRIMARY)) {
                 // Check if the connection line has been snapped
                 if (!snapped[0]) {
                     // If not snapped, remove the connection line
@@ -114,13 +119,22 @@ public class LogicGateApplication extends Application {
             }
         });
 
+        // Handle connectionLine right-click to delete it
+        connectionLine.setOnMouseClicked(event -> {
+            if (event.getButton().equals(MouseButton.SECONDARY)) {  // Right-click on the connection line
+                // Remove the connection line from the scene
+                sceneRoot.getChildren().remove(connectionLine);
+            }
+        });
+
         // Handle node clicks for toggling color
         node.setOnMouseClicked(event -> {
-            if (event.getButton().equals(MouseButton.SECONDARY)) {  // Right-click
+            if (event.getButton().equals(MouseButton.SECONDARY)) {  // Right-click on the node
                 // Remove the node and its connection line
                 sceneRoot.getChildren().remove(node);
                 sceneRoot.getChildren().remove(connectionLine);
-            } else if (event.getButton().equals(MouseButton.PRIMARY)) {  // Left-click
+            }
+            if (event.getButton().equals(MouseButton.PRIMARY)) {  // Left-click on the node
                 // Toggle the node state
                 isOn[0] = !isOn[0];
 
@@ -147,6 +161,7 @@ public class LogicGateApplication extends Application {
 
     private void snapToGateInput(Line connectionLine, Pane sceneRoot, boolean[] snapped, Line[] snappedInputLine) {
         // Loop through all gates in the scene and check proximity to input lines
+        boolean isSnapped = false;
         for (Node child : sceneRoot.getChildren()) {
             if (child instanceof Group gateGroup) {
 
@@ -181,16 +196,20 @@ public class LogicGateApplication extends Application {
                                 connectionLine.setEndY(adjustedStartY);
 
                                 // Mark the connection as snapped
+                                isSnapped = true;
                                 snapped[0] = true;
-
                                 // Store the snapped input line for color updates
                                 snappedInputLine[0] = inputLine;
+
                             }
                         }
                     }
                 }
             }
         }
+        if (!isSnapped) {
+            snapped[0] = false;  // Unsnap the connection
+            snappedInputLine[0] = null;
+        }
     }
-
 }
